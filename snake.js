@@ -105,9 +105,6 @@ document.querySelector("#refresh").addEventListener("click", (e) => {
 
 function regeneratePellet(pelletIndex) {
     var pellet = pellets[pelletIndex];
-    pellet.x = null;
-    pellet.y = null;
-    pellet.z = null;
     var newPos = pointFromSpherical(Math.random() * Math.PI * 2, Math.random() * Math.PI);
     pellet.x = newPos.x;
     pellet.y = newPos.y;
@@ -397,22 +394,17 @@ function checkCollisions() {
                 }
                 regeneratePellet(j);
                 orbsCollected++;
-                
-                // Move red pellet every third orb
-                if (orbsCollected % 3 === 0) {
-                    moveRedPellet();
-                }
             } else if (pellet.type === 'blue') {
                 // Blue pellet worth 1 length and 1 point, respawns
                 addSnakeNode();
                 incrementScore();
                 regeneratePellet(j);
                 orbsCollected++;
-                
-                // Move red pellet every third orb
-                if (orbsCollected % 3 === 0) {
-                    moveRedPellet();
-                }
+            }
+            
+            // Move red pellet every third orb collected
+            if (orbsCollected % 3 === 0) {
+                moveRedPellet();
             }
         }
     }
