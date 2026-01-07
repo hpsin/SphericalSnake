@@ -390,24 +390,24 @@ function checkCollisions() {
                 showEnd();
                 return;
             } else if (pellet.type === 'green') {
-                // Green pellet worth 5 points, respawns
+                // Green pellet worth 5 length and 5 points, respawns
                 for (var k = 0; k < pellet.value; k++) {
                     addSnakeNode();
+                    incrementScore();
                 }
-                incrementScore();
-                orbsCollected++;
                 regeneratePellet(j);
+                orbsCollected++;
                 
                 // Move red pellet every third orb
                 if (orbsCollected % 3 === 0) {
                     moveRedPellet();
                 }
             } else if (pellet.type === 'blue') {
-                // Blue pellet worth 1 point, respawns
+                // Blue pellet worth 1 length and 1 point, respawns
                 addSnakeNode();
                 incrementScore();
-                orbsCollected++;
                 regeneratePellet(j);
+                orbsCollected++;
                 
                 // Move red pellet every third orb
                 if (orbsCollected % 3 === 0) {
