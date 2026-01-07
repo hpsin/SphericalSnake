@@ -15,8 +15,9 @@ var accumulatedDelta = 0; // How much delta time is built up.
 // An array of snake nodes.
 var snake;
 
-// Point representing the pellet to eat.
-var pellet;
+// Array of pellets with different types.
+var pellets = [];
+var orbsCollected = 0; // Track orbs collected to move red pellet every 3rd orb
 
 var snakeVelocity;
 
@@ -102,8 +103,28 @@ document.querySelector("#refresh").addEventListener("click", (e) => {
     window.location.reload(true);
 })
 
-function regeneratePellet() {
-    pellet = pointFromSpherical(Math.random() * Math.PI * 2, Math.random() * Math.PI);
+function regeneratePellet(pelletIndex) {
+    var pellet = pellets[pelletIndex];
+    pellet.x = null;
+    pellet.y = null;
+    pellet.z = null;
+    var newPos = pointFromSpherical(Math.random() * Math.PI * 2, Math.random() * Math.PI);
+    pellet.x = newPos.x;
+    pellet.y = newPos.y;
+    pellet.z = newPos.z;
+}
+
+function initializePellets() {
+    pellets = [
+        { type: 'blue', value: 1, color: { r: 0, g: 0, b: 255 }, x: 0, y: 0, z: 0 },
+        { type: 'blue', value: 1, color: { r: 0, g: 0, b: 255 }, x: 0, y: 0, z: 0 },
+        { type: 'green', value: 5, color: { r: 0, g: 255, b: 0 }, x: 0, y: 0, z: 0 },
+        { type: 'red', value: -1, color: { r: 255, g: 0, b: 0 }, x: 0, y: 0, z: 0 }
+    ];
+    
+    for (var i = 0; i < pellets.length; i++) {
+        regeneratePellet(i);
+    }
 }
 
 function pointFromSpherical(theta, phi) {
@@ -156,7 +177,7 @@ function incrementScore() {
 }
 
 function allPoints() {
-    var allPoints = [pellet].concat(points).concat(snake);
+    var allPoints = pellets.concat(points).concat(snake);
     for (var i = 0; i < snake.length; i++)
         allPoints = allPoints.concat(snake[i].posQueue);
     return allPoints;
@@ -173,7 +194,7 @@ function init() {
     clock = Date.now();
     leftDown = false;
     rightDown = false;
-    regeneratePellet();
+    initializePellets();
 
     // The +1 is necessary since the queue excludes the current position.
     snakeVelocity = NODE_ANGLE * 2 / (NODE_QUEUE_SIZE + 1);
@@ -219,7 +240,7 @@ function update() {
 }
 
 // Radius is given in angle and is drawn based on depth.
-function drawPoint(point, radius, red) {
+function drawPoint(point, radius, red, green, blue) {
     var p = copyPoint(point);
 
     // Translate so that sphere origin is (0, 0, 2).
@@ -240,9 +261,15 @@ function drawPoint(point, radius, red) {
 
     // Transparent based on depth.
     var alpha = 1 - (p.z - 1) / 2;
-    // Color based on depth.
-    var depthColor = 255 - Math.floor((p.z - 1) / 2 * 255);
-    ctx.fillStyle = "rgba(" + red + ", 0, " + depthColor + ", " + alpha + ")";
+    
+    // If green and blue are provided, use RGB color, otherwise use old depth-based coloring
+    if (green !== undefined && blue !== undefined) {
+        ctx.fillStyle = "rgba(" + red + ", " + green + ", " + blue + ", " + alpha + ")";
+    } else {
+        // Color based on depth (old behavior).
+        var depthColor = 255 - Math.floor((p.z - 1) / 2 * 255);
+        ctx.fillStyle = "rgba(" + red + ", 0, " + depthColor + ", " + alpha + ")";
+    }
     ctx.arc(p.x, p.y, radius, 0, Math.PI * 2);
     ctx.fill();
 }
@@ -256,7 +283,11 @@ function render() {
         drawPoint(snake[i], NODE_ANGLE, 120);
     }
 
-    drawPoint(pellet, NODE_ANGLE, 0);
+    // Draw all pellets with their respective colors
+    for (var i = 0; i < pellets.length; i++) {
+        var pellet = pellets[i];
+        drawPoint(pellet, NODE_ANGLE, pellet.color.r, pellet.color.g, pellet.color.b);
+    }
 
     // Draw angle.
     ctx.beginPath();
@@ -342,17 +373,58 @@ function collision(a,b) {
 }
 
 function checkCollisions() {
+    // Check for collision with snake body
     for (var i = 2; i < snake.length; i++) {
          if (collision(snake[0], snake[i])) {
              showEnd();
-             leaderboard.setScore(score);
              return;
          }
     }
-    if (collision(snake[0], pellet)) {
-        regeneratePellet();
-        addSnakeNode();
-        incrementScore();
+    
+    // Check for collision with each pellet
+    for (var j = 0; j < pellets.length; j++) {
+        var pellet = pellets[j];
+        if (collision(snake[0], pellet)) {
+            if (pellet.type === 'red') {
+                // Red pellet causes instant death
+                showEnd();
+                return;
+            } else if (pellet.type === 'green') {
+                // Green pellet worth 5 points, respawns
+                for (var k = 0; k < pellet.value; k++) {
+                    addSnakeNode();
+                }
+                incrementScore();
+                orbsCollected++;
+                regeneratePellet(j);
+                
+                // Move red pellet every third orb
+                if (orbsCollected % 3 === 0) {
+                    moveRedPellet();
+                }
+            } else if (pellet.type === 'blue') {
+                // Blue pellet worth 1 point, respawns
+                addSnakeNode();
+                incrementScore();
+                orbsCollected++;
+                regeneratePellet(j);
+                
+                // Move red pellet every third orb
+                if (orbsCollected % 3 === 0) {
+                    moveRedPellet();
+                }
+            }
+        }
+    }
+}
+
+function moveRedPellet() {
+    // Find and move the red pellet
+    for (var i = 0; i < pellets.length; i++) {
+        if (pellets[i].type === 'red') {
+            regeneratePellet(i);
+            break;
+        }
     }
 }
 
