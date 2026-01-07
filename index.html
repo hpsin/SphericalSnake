@@ -2,16 +2,6 @@
 
 <html lang='en'>
 <head>
-    <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-V3RS08GZ06"></script>
-    <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
-
-    gtag('config', 'G-V3RS08GZ06');
-    </script>
-
     <meta charset='utf-8'>
     <meta name='description' content='Snake on a sphere'>
     <meta name='author' content='Kevin Albertson'>
@@ -19,10 +9,6 @@
 
     <link rel="icon" type="image/png" href="favicon.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0, user-scalable=0" />
-
-    <!-- reCaptcha -->
-    <!-- <script src="https://www.google.com/recaptcha/enterprise.js?render=6Le6rvwqAAAAAIhHsQfZPb6pkU9nUnnkqD5mqADl"></script> -->
-    <script src="https://www.google.com/recaptcha/api.js?render=6Le6rvwqAAAAAIhHsQfZPb6pkU9nUnnkqD5mqADl"></script>
     <style type='text/css'>
         * {
             margin: 0;
@@ -60,14 +46,6 @@
             display: none;
             position: absolute;
             top: 200px;
-        }
-        /* hide reCaptcha badge */
-        .grecaptcha-badge {
-            display: none !important;
-        }
-
-        .hidden {
-            display: none;
         }
 
         #mobile_controls {
@@ -136,22 +114,17 @@
         </div>
         <div id="leaderboard_area">
             <p>To play: Use arrow keys or buttons.</p>
-            <span style="display:none"><a href="#" id="submit_last_score" class="hidden"></a></span>
-            <div id="show_high_score_section">
-                <span id="high_score"></span><span style="display:none"><a href="#" id="submit_high_score" class="hidden">Submit to
-                    leaderboard</a></span>
-                </div>
-                <div><a href="/spherical_snake/leaderboard/" target="_blank" id="show_high_score_link">See leaderboard</a></div>
-                <p>See <a href="https://github.com/kevinAlbs/SphericalSnake">source on GitHub</a></p>
-            </div>
-        </div> <!-- #container -->
-        <script src='leaderboard.js'></script>
-        <script>
-            // Prevent double-tap-zoom on iOS:
-            document.addEventListener("dblclick", (e) => {
-                e.preventDefault();
-            });
-        </script>
+            <p>Blue orbs: +1 length | Green orb: +5 length | Red orb: instant death!</p>
+            <p>This is a fork of the <a href="https://github.com/kevinAlbs/SphericalSnake">original Spherical Snake</a> by Kevin Albertson.</p>
+            <p>See <a href="https://github.com/hpsin/SphericalSnake">this fork on GitHub</a></p>
+        </div>
+    </div> <!-- #container -->
+    <script>
+        // Prevent double-tap-zoom on iOS:
+        document.addEventListener("dblclick", (e) => {
+            e.preventDefault();
+        });
+    </script>
     <script src='snake.js'></script>
     
 </body>
